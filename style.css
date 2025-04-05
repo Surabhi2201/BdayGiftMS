@@ -10,7 +10,7 @@ body {
   justify-content: center;
 
   background-size: 1000px;
-  background-image: url("https://www.psdgraphics.com/wp-content/uploads/2022/01/white-math-paper-texture.jpg");
+  background-image: url("/Meenakshi/impressingCrush/images/y1.jpg");
   background-position: center center;
 }
 
@@ -22,9 +22,13 @@ body {
 /*  min-width: 800px; */
   
   transform: rotateZ(-5deg);
+  transition: transform 0.2s ease; 
   box-shadow: 1px 15px 20px 0px rgba(0,0,0,0.5);
-  
+  touch-action: none;              /* Prevent default browser gestures */
+  user-select: none;               /* Prevent text selection while dragging */
+  cursor: grab;                    
   position: absolute;
+
 }
 
 .paper.heart {
@@ -69,5 +73,5 @@ p {
   opacity: 0.75;
   user-select: none;
   
-  // filter: drop-shadow(2px 1.5px 1px rgba(0,0,105,0.9));
+   filter: drop-shadow(2px 1.5px 1px rgba(0,0,105,0.9));
 }

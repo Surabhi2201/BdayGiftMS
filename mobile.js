@@ -18,6 +18,8 @@ class Paper {
   rotating = false;
 
   init(paper) {
+    let lastTap = 0;
+
     paper.addEventListener('touchmove', (e) => {
       e.preventDefault();
       if(!this.rotating) {
@@ -51,7 +53,7 @@ class Paper {
 
         paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
       }
-    })
+    });
 
     paper.addEventListener('touchstart', (e) => {
       if(this.holdingPaper) return; 
@@ -59,15 +61,57 @@ class Paper {
       
       paper.style.zIndex = highestZ;
       highestZ += 1;
-      
+
+      // --- Add-on: Visual Feedback on touch start ---
+      paper.style.transition = 'transform 0.1s ease';
+      paper.style.boxShadow = '0 15px 30px rgba(0,0,0,0.2)';
+      paper.style.transform += ' scale(1.05)';
+      // ---------------------------------------------
+
       this.touchStartX = e.touches[0].clientX;
       this.touchStartY = e.touches[0].clientY;
       this.prevTouchX = this.touchStartX;
       this.prevTouchY = this.touchStartY;
     });
+
     paper.addEventListener('touchend', () => {
       this.holdingPaper = false;
       this.rotating = false;
+
+      // --- Add-on: Remove shadow on release ---
+      paper.style.boxShadow = '';
+      paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+      // ----------------------------------------
+
+      // --- Add-on: Momentum after release ---
+      const friction = 0.95;
+      const animateMomentum = () => {
+        if (Math.abs(this.velX) > 0.5 || Math.abs(this.velY) > 0.5) {
+          this.currentPaperX += this.velX;
+          this.currentPaperY += this.velY;
+          this.velX *= friction;
+          this.velY *= friction;
+
+          paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+          requestAnimationFrame(animateMomentum);
+        }
+      };
+      requestAnimationFrame(animateMomentum);
+      // --------------------------------------
+
+      // --- Add-on: Double Tap to Reset ---
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTap;
+
+      if (tapLength < 300 && tapLength > 0) {
+        this.rotation = 0;
+        this.currentPaperX = 0;
+        this.currentPaperY = 0;
+        paper.style.transform = `translateX(0px) translateY(0px) rotateZ(0deg)`;
+      }
+
+      lastTap = currentTime;
+      // ------------------------------------
     });
 
     // For two-finger rotation on touch screens
@@ -80,6 +124,10 @@ class Paper {
     });
   }
 }
+
+// --- Add-on: Prevent page scrolling when dragging papers ---
+document.body.style.touchAction = 'none';
+// -----------------------------------------------------------
 
 const papers = Array.from(document.querySelectorAll('.paper'));
 
